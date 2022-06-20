@@ -39,14 +39,24 @@ type WalletBalances = {
         provider,
       );
 
-      walletBalances[wallets[walletIndex]].push({
-        address: wallets[walletIndex],
-        balance: (await contract.balanceOf(wallets[walletIndex], { blockTag: blockNumber }))
-          .toString(),
-        decimals: (await contract.decimals()).toString(),
-      });
+      try {
+        walletBalances[wallets[walletIndex]].push({
+          address: tokens[tokenIndex],
+          balance: (await contract.balanceOf(wallets[walletIndex], { blockTag: blockNumber }))
+            .toString(),
+          decimals: (await contract.decimals()).toString(),
+        });
+      } catch (e) {
+        console.log('Error occured');
+        console.log(tokens[tokenIndex]);
+      }
     }
   }
 
-  console.log(walletBalances);
+  Object.keys(walletBalances)
+    // eslint-disable-next-line array-callback-return
+    .map((walletAddress) => {
+      walletBalances[walletAddress]
+        .map((tokenBalance: TokenBalance) => console.log(`${walletAddress},${tokenBalance.address},${tokenBalance.balance},${tokenBalance.decimals}`));
+    });
 })();

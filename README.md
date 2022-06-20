@@ -1,6 +1,6 @@
-# Token Balance
+# 📒💰 Token Balance
 
-Simple Node.js CLI tool to fetch ERC20 token balances on a given date.
+> Get the historical balance of any ERC-20 token of any address.
 
 ## Usage
 
@@ -10,11 +10,19 @@ Simple Node.js CLI tool to fetch ERC20 token balances on a given date.
 git clone https://github.com/Augustus999/token-balance
 ```
 
-### 2. Modify config
+### 2. Clone config
+
+Clone the example config (`src/config.example.json`) to `src/config.json`.
+
+```shell
+cp src/config.example.json src/config.json
+```
+
+### 3. Modify config
 
 Modify the config in `src/config.json`.
 
-### 3. Add Alchemy API key to .env
+### 4. Add Alchemy API key to .env
 
 First, copy the `.env.example` file to `.env`.
 
@@ -24,7 +32,7 @@ cp .env.example .env
 
 Finally, add your Alchemy API key to the `.env` file.
 
-### 4. Fetch the addresses
+### 5. Fetch the addresses
 
 ```shell
 npm start

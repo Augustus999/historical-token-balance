@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { ethers } from 'ethers';
+import config from './config.json';
 
 const { ALCHEMY_API_KEY } = process.env;
 
@@ -16,31 +17,20 @@ type WalletBalances = {
 (async () => {
   const provider = new ethers.providers.AlchemyProvider('homestead', ALCHEMY_API_KEY);
 
-  // 1. Specify array of wallet balances
-  const walletAddresses: string[] = [
-    '0x616efd3e811163f8fc180611508d72d842ea7d07',
-  ];
+  const { wallets, tokens, blockNumber } = config;
 
-  // 2. Specify token addresses
-  // Beware, the total amount of requests you will consume is:
-  // {walletAddresses.length} * {tokenAddresses.length} * {values you call from the smart contract}
-  const tokenAddresses: string[] = [
-    '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    '0x6b175474e89094c44da98b954eedeac495271d0f',
-    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  ];
-
-  // 3. Specify block number
-  const blockNumber = 13371337;
+  console.log(`Fetching balances from ${wallets.length} wallets and ${tokens.length} tokens at block ${blockNumber}...`);
 
   const walletBalances: WalletBalances = {};
 
-  console.log(`Fetching balances from ${walletAddresses.length} addresses at block ${blockNumber}...`);
+  for (let walletIndex = 0; walletIndex < wallets.length; walletIndex += 1) {
+    for (let tokenIndex = 0; tokenIndex < tokens.length; tokenIndex += 1) {
+      if (typeof walletBalances[wallets[walletIndex]] === 'undefined') {
+        walletBalances[wallets[walletIndex]] = [];
+      }
 
-  for (let walletIndex = 0; walletIndex < walletAddresses.length; walletIndex + 1) {
-    for (let tokenIndex = 0; tokenIndex < tokenAddresses.length; tokenIndex + 1) {
       const contract = new ethers.Contract(
-        tokenAddresses[tokenIndex],
+        tokens[tokenIndex],
         [
           'function balanceOf(address) view returns (uint)',
           'function symbol() view returns (string)',
@@ -49,19 +39,14 @@ type WalletBalances = {
         provider,
       );
 
-      if (typeof walletBalances[walletAddresses[walletIndex]] === 'undefined') {
-        walletBalances[walletAddresses[walletIndex]] = [];
-      }
-
-      walletBalances[walletAddresses[walletIndex]].push({
-        address: tokenAddresses[tokenIndex],
-        balance: (await contract.balanceOf(walletAddresses[walletIndex], { blockTag: blockNumber }))
+      walletBalances[wallets[walletIndex]].push({
+        address: wallets[walletIndex],
+        balance: (await contract.balanceOf(wallets[walletIndex], { blockTag: blockNumber }))
           .toString(),
         decimals: (await contract.decimals()).toString(),
       });
     }
   }
 
-  // 4. Use `walletBalances` as needed
   console.log(walletBalances);
 })();
